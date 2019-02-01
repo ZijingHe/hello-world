@@ -128,7 +128,7 @@ ggplot(mpg_summ, aes(x=reorder(model, hwy.mean), y=hwy.mean)) + #recorder (x,y) 
 
 # what about plotting z scores instead?
 
-# first add a new column using the mutate function (change an old variable)
+# first add a new column using the mutate function (make changes in a dataset)
 mpg_summ = mutate(mpg_summ, hwy.z = (hwy.mean - mean(hwy.mean))/sd(hwy.mean))
 
 # now plot the newly defined variable
