@@ -121,7 +121,7 @@ ggplot(mpg_summ, aes(x=model, y=hwy.mean)) +
   coord_flip()
 
 # reorder the x labels
-ggplot(mpg_summ, aes(x=reorder(model, hwy.mean), y=hwy.mean)) + #recorder (x,y) order y according to x
+ggplot(mpg_summ, aes(x=reorder(model, hwy.mean), y=hwy.mean)) + #recorder (x,y) order x according to y
   geom_bar(stat='identity') + 
   coord_flip()
 
