@@ -11,7 +11,7 @@ In terms of cleaning the data, I partly agree with the recommendation in
 the question. The distribution of leasing rate is kind of weird for
 non-green buildings which make them incomparable with green buildings.
 
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+![](Exercise1/unnamed-chunk-2-1.png)
 
 Besides leasing rate, green buildings are younger than non-green
 buildings on average. Also, we can see the trend for older buildings at
