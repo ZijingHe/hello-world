@@ -1,4 +1,4 @@
-# hello-world
-My first repository
+# Data_mining Homework Page
 
-Hi! My name is Zijing He. I come from China.
+Name: Zijing He
+UTEID: ZH4743
