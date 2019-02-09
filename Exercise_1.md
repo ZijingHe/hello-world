@@ -19,12 +19,12 @@ the very right part of the graph. Older buildings, in general, generate
 lower rent and are usually non-green buildings, which might bring the
 average/median rent of non-green buidings down if we count them.
 
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-3-1.png)
+![](Exercise%201/unnamed-chunk-3-1.png)
 
 Meanwhile, older buildings are more likely be renovated, extra cost may
 also affect the rent.
 
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-4-1.png)
+![](Exercise%201/unnamed-chunk-4-1.png)
 
 Thus, we clean the dataset by delete rows which the leasing rate is
 lower than 10 and the age of buildings is higher than 116. The threshold
@@ -36,17 +36,17 @@ by other confounding variables. For size, stories and the contract type,
 the rent differences do not deviate much when the size/stories/contract
 type changes.
 
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-6-1.png)![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-6-2.png)![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-6-3.png)
+![](Exercise%201/unnamed-chunk-6-1.png)![](Exercise%201/unnamed-chunk-6-2.png)![](Exercise%201/unnamed-chunk-6-3.png)
 The differences of rent are larger for buildings which have undergone
 substantial renovations during their lifetimes. However, the cost
 generated from renovation might also be different, so the effect on rent
 is ambiguous.
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-7-1.png)
+![](Exercise%201/unnamed-chunk-7-1.png)
 
 The differences of rent are larger for buildings with low quality or
 with amenities.
 
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-8-1.png)![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-8-2.png)
+![](Exercise%201/unnamed-chunk-8-1.png)![](Exercise%201/unnamed-chunk-8-2.png)
 
 For the demographical variables, in the same cluster, those building
 have the same values. Thus, analysis one of them is representative. The
@@ -55,7 +55,7 @@ increase of cluster rent, the variation of non green buildings become
 larger, this may generate an indirect effect from green certification on
 rent
 
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-9-1.png)
+![](Exercise%201/unnamed-chunk-9-1.png)
 
 In conclude, if we want to compare apples-to-apples, it is important to
 focus on the same region (it should be larger than a quarter mile to
@@ -82,13 +82,13 @@ In figure 1 and figure 2, we can see the best time of a day to fly is
 during 6am to 9 am with probability of delay lower than 30%, and if
 delay, wait less than 30 minutes on average.
 
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-12-1.png)![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-12-2.png)
+![](Exercise%201/unnamed-chunk-12-1.png)![](Exercise%201/unnamed-chunk-12-2.png)
 
 In figure 3 and figure 4, the best time of a year to fly is from
 September to November with probability of delay lower than 30%, and if
 delay, wait less than approximately 20 minutes on average.
 
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-13-1.png)![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-13-2.png)
+![](Exercise%201/unnamed-chunk-13-1.png)![](Exercise%201/unnamed-chunk-13-2.png)
 
 Question 3 -- KNN
 =================
@@ -96,12 +96,12 @@ Question 3 -- KNN
 Figure 1 and Figure 2 shows a plot of RMSE versus K for car trim level
 550 and a plot of the fitted model at the optimal K value.
 
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-15-1.png)![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-15-2.png)
+![](Exercise%201/unnamed-chunk-15-1.png)![](Exercise%201/unnamed-chunk-15-2.png)
 
 Figure 3 and Figure 4 shows a plot of RMSE versus K for car trim level
 65AMG and a plot of the fitted model at the optimal K value.
 
-![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-16-1.png)![](Exercise_1_files/figure-markdown_strict/unnamed-chunk-16-2.png)
+![](Exercise%201/unnamed-chunk-16-1.png)![](Exercise%201/unnamed-chunk-16-2.png)
 
 Since the optimal K will be affected by different random subsmaple we
 choose. On average, optimal K of the second subsample is relatively
