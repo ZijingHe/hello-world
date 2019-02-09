@@ -1,0 +1,407 @@
+---
+title: "Exercise 1"
+author: "Zijing He"
+date: "2/11/2019"
+output: md_document
+---
+
+# Question 1 -- Green Buildings
+
+In general, there are some confounding variables through which green certification could affect rent indirectly. We could not simply divide whole sample into two parts by whether the building is green certified or not. I will first clean the dataset and then present some visualization graphs to support my analysis.
+
+In terms of cleaning the data, I partly agree with the recommendation in the question. The distribution of leasing rate is kind of weird for non-green buildings which make them incomparable with green buildings.
+
+```{r, echo=FALSE,include=FALSE}
+library(tidyverse)
+library(RCurl)
+x <- getURL("https://raw.githubusercontent.com/ZijingHe/hello-world/master/data/greenbuildings.csv")
+greenbuildings <- read.csv(text = x)
+```
+
+```{r,echo = FALSE}
+# distribution of leasing rate to decide clean data
+g=ggplot(data = greenbuildings,aes(x = leasing_rate))
+g+geom_density(fill = "lightblue")+
+  facet_wrap(~green_rating, nrow = 2)+
+  labs(title="Distribution of leasing rate",
+       caption="Source: greenbuidlings Dataset",
+       y = "Density",
+       x = "Leasing rate")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Besides leasing rate, green buildings are younger than non-green buildings on average. Also, we can see the trend for older buildings  at the very right part of the graph.  Older buildings, in general, generate lower rent and are usually non-green buildings, which might bring the average/median rent of non-green buidings down if we count them.
+
+```{r, echo = FALSE}
+ggplot(greenbuildings, aes(age, Rent)) + 
+  geom_point(aes(color = factor(green_rating)))+
+  labs( color = "Green Certification")
+```
+
+Meanwhile, older buildings are more likely be renovated, extra cost may also affect the rent.
+
+```{r, echo = FALSE}
+gg=ggplot(greenbuildings, aes(x= age))  
+gg+geom_density(aes(fill = factor(renovated), alpha = 0.6))+
+  labs( fill = "Green Certification",
+        x="Age")+
+  scale_alpha(guide = 'none')
+```
+
+Thus, we clean the dataset by delete rows which the leasing rate is lower than 10 and the age of buildings is higher than 116. The threshold 116 set 
+equals to the age of the oldest green buildings. 
+
+```{r, echo = FALSE,include=FALSE}
+onlygreen <- subset(greenbuildings, green_rating == 1)
+max(onlygreen$age)
+cleandata <- subset(greenbuildings, age<=116 & leasing_rate>=10)
+```
+
+Graphs below show whether the rent difference between non-green buildings and green buildings (revenue difference we care) is affected by other confounding variables. For size, stories and the contract type, the rent differences do not deviate much when the size/stories/contract type changes.
+
+```{r, echo = FALSE}
+# rent for different size
+ggplot(data = cleandata) + 
+  geom_point(mapping = aes(x = size, y = Rent,color = factor(green_rating), alpha = 0.6))+
+  labs( color = "Green Certification",
+        x="Size")+
+  scale_alpha(guide = 'none')
+
+
+# rent for different stories
+ggplot(data = cleandata) + 
+  geom_point(mapping = aes(x = stories, y = Rent, color = factor(green_rating)))+
+  labs( color = "Green Certification",
+          x="Number of Stories")+
+  scale_alpha(guide = 'none')
+
+ 
+# rent for different kind of contract
+gg=ggplot(cleandata, aes(x= Rent))  
+gg+geom_density(aes(fill = factor(green_rating), alpha = 0.6))+
+  facet_wrap(~net,nrow = 2, labeller = labeller(net = c(`0` = "Non Net-rental Contracts", `1` = "Net-rental Contracts")))+
+  labs( fill = "Green Certification")+
+  scale_alpha(guide = 'none')
+```
+The differences of rent are larger for buildings which have undergone substantial renovations during their lifetimes. However, the cost generated from renovation might also be different, so the effect on rent is ambiguous.
+```{r, echo = FALSE}
+gg=ggplot(cleandata, aes(x= Rent))  
+gg+geom_density(aes(fill = factor(green_rating), alpha = 0.6))+
+  facet_wrap(~renovated, nrow = 2,labeller = labeller(renovated = c(`0` = "Non Renovated", `1` = "Renovated")))+
+  labs( fill = "Green Certification")+
+  scale_alpha(guide = 'none')
+```
+
+The differences of rent are larger for buildings with low quality or with amenities. 
+
+```{r, echo = FALSE, warning = FALSE}
+# rent for different quality
+cleandata$quality <- cleandata$class_a*2+cleandata$ class_b
+gg=ggplot(cleandata, aes(x= Rent))  
+gg+geom_density(aes(fill = factor(green_rating), alpha = 0.4))+
+  facet_wrap(~quality, nrow = 3,labeller = labeller(quality = c(`0` = "Class C", `1` = "Class B", '2'="Class A")))+
+  xlim(0,150)+
+  labs( fill = "Green Certification")+
+  scale_alpha(guide = 'none')
+
+# rent for whether amenities
+gg=ggplot(cleandata, aes(x= Rent))  
+gg+geom_density(aes(fill = factor(green_rating), alpha = 0.6))+
+  facet_wrap(~amenities, nrow = 2,labeller = labeller(amenities = c(`0` = "No Amenities", `1` = "Amenities")))+
+  labs( fill = "Green Certification")+
+  scale_alpha(guide = 'none')
+```
+
+For the demographical variables, in the same cluster, those building have the same values. Thus, analysis one of them is representative. The market rent is positively correlated with cluster rent. With the increase of cluster rent, the variation of non green buildings become larger, this may generate an indirect effect from green certification on rent
+
+```{r, echo = FALSE}
+# rent for different region
+ggplot(data = cleandata) + 
+  geom_point(mapping = aes(x = cluster_rent, y = Rent, color = factor(green_rating)))+
+  labs( color = "Green Certification")+
+  scale_alpha(guide = 'none')
+```
+
+In conclude, if we want to compare apples-to-apples, it is important to focus on the same region (it should be larger than a quarter mile to include more comparison data). Also, some features of building like renovation, quality and amenities are also highly correlated with green certification. Thus, to do a better analysis, we need more information about the building. Not only about the stories and locations from the question, but also other feature information, such as the quality of the building, whether there are amenities in the buildings. 
+
+# Question 2 -- ABIA
+
+In this question, I will try to answer the question about the best time to fly, both the best time of a day and the best time of a year. To answer them, I will both illustrate the probability of delay in a time period, and if delay, how long on average need to wait.
+
+```{r, echo=FALSE,include=FALSE}
+library(RCurl)
+x <- getURL("https://raw.githubusercontent.com/ZijingHe/hello-world/master/data/ABIA.csv")
+ABIA <- read.csv(text = x)
+library(tidyverse)
+ABIA$DepDelayDummy[ABIA$DepDelay>0] <- 1
+ABIA$DepDelayDummy[ABIA$DepDelay<=0] <- 0
+ABIA$DepDelayCount <- 1
+```
+
+We cut the continuous scheduled departure time in to 24 categories by hour of a day. Since there is no scheduled departure flights from 0 to 5 am, the comparison starts from 6am. 
+
+```{r, echo=FALSE}
+# define categories
+ABIA$crsDepTime[ABIA$CRSDepTime>0 & ABIA$CRSDepTime<=100]<-"1"
+ABIA$crsDepTime[ABIA$CRSDepTime>100 & ABIA$CRSDepTime<=200]<-"2"
+ABIA$crsDepTime[ABIA$CRSDepTime>200 & ABIA$CRSDepTime<=300]<-"3"
+ABIA$crsDepTime[ABIA$CRSDepTime>300 & ABIA$CRSDepTime<=400]<-"4"
+ABIA$crsDepTime[ABIA$CRSDepTime>400 & ABIA$CRSDepTime<=500]<-"5"
+ABIA$crsDepTime[ABIA$CRSDepTime<=600]<-"6"
+ABIA$crsDepTime[ABIA$CRSDepTime>600 & ABIA$CRSDepTime<=700]<-"7"
+ABIA$crsDepTime[ABIA$CRSDepTime>700 & ABIA$CRSDepTime<=800]<-"8"
+ABIA$crsDepTime[ABIA$CRSDepTime>800 & ABIA$CRSDepTime<=900]<-"9"
+ABIA$crsDepTime[ABIA$CRSDepTime>900 & ABIA$CRSDepTime<=1000]<-"10"
+ABIA$crsDepTime[ABIA$CRSDepTime>1000 & ABIA$CRSDepTime<=1100]<-"11"
+ABIA$crsDepTime[ABIA$CRSDepTime>1100 & ABIA$CRSDepTime<=1200]<-"12"
+ABIA$crsDepTime[ABIA$CRSDepTime>1200 & ABIA$CRSDepTime<=1300]<-"13"
+ABIA$crsDepTime[ABIA$CRSDepTime>1300 & ABIA$CRSDepTime<=1400]<-"14"
+ABIA$crsDepTime[ABIA$CRSDepTime>1400 & ABIA$CRSDepTime<=1500]<-"15"
+ABIA$crsDepTime[ABIA$CRSDepTime>1500 & ABIA$CRSDepTime<=1600]<-"16"
+ABIA$crsDepTime[ABIA$CRSDepTime>1600 & ABIA$CRSDepTime<=1700]<-"17"
+ABIA$crsDepTime[ABIA$CRSDepTime>1700 & ABIA$CRSDepTime<=1800]<-"18"
+ABIA$crsDepTime[ABIA$CRSDepTime>1800 & ABIA$CRSDepTime<=1900]<-"19"
+ABIA$crsDepTime[ABIA$CRSDepTime>1900 & ABIA$CRSDepTime<=2000]<-"20"
+ABIA$crsDepTime[ABIA$CRSDepTime>2000 & ABIA$CRSDepTime<=2100]<-"21"
+ABIA$crsDepTime[ABIA$CRSDepTime>2100 & ABIA$CRSDepTime<=2200]<-"22"
+ABIA$crsDepTime[ABIA$CRSDepTime>2200 & ABIA$CRSDepTime<=2300]<-"23"
+ABIA$crsDepTime[ABIA$CRSDepTime>2300 & ABIA$CRSDepTime<=2400]<-"24"
+ABIA$crsDepTime <- as.character((ABIA$crsDepTime))
+```
+
+In figure 1 and figure 2, we can see the best time of a day to fly is during 6am to 9 am with probability of delay lower than 30%, and if delay, wait less than 30 minutes on average. 
+
+```{r, echo=FALSE}
+# Probability of delay departure in a day 
+Abia_bestday = ABIA %>%
+  group_by(crsDepTime)  %>%  # group the data points
+  summarize(Delay.Prob = sum(DepDelayDummy,na.rm=TRUE)/sum(DepDelayCount,na.rm=TRUE)) 
+
+ggplot(Abia_bestday,aes(x=as.numeric(crsDepTime), y=Delay.Prob, fill = Delay.Prob))+
+  geom_bar(stat='identity')+
+  scale_fill_gradient2()+
+  labs(title="Figure1: Probabolity of Departure Delay by time in a day", 
+       caption="Source: ABIA Dataset",
+       y = "Probability of Delay",
+       x = "Time of One Day",
+       fill = "Probability of departure delay")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+# For delay fights, the average time needed to wait by time in a day
+Abia_bestday = ABIA %>%
+  group_by(crsDepTime)  %>%  # group the data points
+  summarize(Delay.mean.day = sum(DepDelayDummy*DepDelay,na.rm=TRUE)/sum(DepDelayDummy,na.rm=TRUE)) 
+
+ggplot(Abia_bestday,aes(x=as.numeric(crsDepTime), y=Delay.mean.day, fill = Delay.mean.day))+
+  geom_bar(stat='identity')+
+  scale_fill_gradient2()+
+  labs(title="Figure2: Average Departure Delay by time in a day", 
+       caption="Source: ABIA Dataset",
+       y="Average Delay (in minutes)",
+       x = "Time",
+       fill = "Average delay minutes")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+In figure 3 and figure 4, the best time of a year to fly is from September to November with probability of delay lower than 30%, and if delay, wait less than approximately 20 minutes on average. 
+
+```{r, echo=FALSE}
+############# the best time of year to fly#############
+# Probability of delay diff month in a yaer 
+Abia_bestyear = ABIA %>%
+  group_by(Month)  %>%  # group the data points
+  summarize(Delay.Prob = sum(DepDelayDummy,na.rm=TRUE)/sum(DepDelayCount,na.rm=TRUE)) 
+
+ggplot(Abia_bestyear,aes(x= factor(Month), y=Delay.Prob, fill = Delay.Prob))+
+  geom_bar(stat='identity')+
+  scale_fill_gradient2()+
+  labs(title="Figure3: Probabolity of Departure Delay by month in 2008", 
+       caption="Source: ABIA Dataset",
+       y = "Probability of Delay",
+       x = "Month",
+       fill = "Probability of Delay")+
+  #scale_x_continuous(breaks =12 , limits=c(1, 12))
+  theme(plot.title = element_text(hjust = 0.5))
+
+# For delay fights, the average time needed to wait by month in 2008
+Abia_bestyear = ABIA %>%
+  group_by(Month)  %>%  # group the data points
+  summarize(Delay.mean.year = sum(DepDelayDummy*DepDelay,na.rm=TRUE)/sum(DepDelayDummy,na.rm=TRUE)) 
+
+ggplot(Abia_bestyear,aes(x=factor(Month), y=Delay.mean.year, fill = Delay.mean.year))+
+  geom_bar(stat='identity')+
+  scale_fill_gradient2()+
+  labs(title="Figure4: Average Departure Delay by Month in 2008", 
+       caption="Source: ABIA Dataset",
+       y="Average Delay (in minutes)",
+       x = "Month",
+       fill = "Average delay minutes")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+# Question 3 -- KNN
+Figure 1 and Figure 2 shows a plot of RMSE versus K for car trim level 550 and a plot of the fitted model at the optimal K value.
+
+```{r, echo=FALSE,include=FALSE}
+library(RCurl)
+x <- getURL("https://raw.githubusercontent.com/ZijingHe/hello-world/master/data/sclass.csv")
+sclass <- read.csv(text = x)
+library(tidyverse)
+library(FNN)
+library(mosaic)
+# The variables involved
+summary(sclass)
+
+# Focus on 2 trim levels: 350 and 65 AMG
+sclass550 = subset(sclass, trim == '350')
+dim(sclass550)
+sclass65AMG = subset(sclass, trim == '65 AMG')
+summary(sclass65AMG)
+
+# define function 
+rmse = function(y, ypred) {
+  sqrt(mean(data.matrix(y-ypred)^2))
+}
+```
+
+```{r, echo=FALSE}
+##### for dataset sclass550####
+N = nrow(sclass550)
+N_train = floor(0.8*N)  # floor round down, celling round up
+N_test = N - N_train
+
+# Train/test split
+# randomly sample a set of data points to include in the training set
+optimal = rep(1,100)
+for (b in 1:100){
+train_ind = sample.int(N, N_train, replace=FALSE)
+
+# Define the training and testing set
+D_train = sclass550[train_ind,]
+D_test = sclass550[-train_ind,]
+D_test = arrange(D_test, mileage)
+
+# Now separate the training and testing sets into features (X) and outcome (y)
+X_train = select(D_train, mileage)
+y_train = select(D_train, price)
+X_test = select(D_test, mileage)
+y_test = select(D_test, price)
+
+#knn = knn.reg(train = X_train, test = X_test, y = y_train, k= 2)
+
+
+### R Loop
+n = 330
+a = rep(0,n)
+mse = rep(0,n)
+for (i in 1: n){
+# KNN 
+knn = knn.reg(train = X_train, test = X_test, y = y_train, k= (i+2))  # training feature, test feature, target var for training set, what k do you want
+ypred_knn = knn$pred
+Out_mse = rmse(y_test, ypred_knn)
+a[i] = i+2
+mse[i] = Out_mse
+}
+optimal[b] = a[which(mse == min(mse))]
+}
+optimalK1 = mean(optimal)
+
+### draw the path of the change of mse by increasing k
+msetrend = data.frame(a, mse)
+ggplot(data = msetrend, aes(x=a, y = mse))+
+  geom_path(color = 'red',size = 1)+
+  geom_vline(xintercept= a[which(mse == min(mse))] )+
+  geom_text(aes(x=a[which(mse == min(mse))], label="k optimal", y=16000), colour="red", size =5, hjust = 0, fontface = "italic")+
+  labs(title="Measuring Accuracy for 550: Out-of-sample MSE vs K",
+       caption="Source: sclass dataset",
+       x="K", y = "Out-of-sample MSE")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+#### fitted model of optimal k
+k_optimal = a[which(mse == min(mse))]
+sclass550 = arrange(sclass550, mileage)
+X_train = select(sclass550, mileage)
+y_train = select(sclass550, price) 
+knn = knn.reg(train = X_train, test = X_train, y = y_train, k= k_optimal)  # training feature, test feature, target var for training set, what k do you want
+ypred = knn$pred
+p_train = ggplot(data = sclass550) +
+  geom_point(mapping = aes(x= mileage, y = price), color ='lightblue')
+p_train + geom_path(mapping = aes(x = mileage, y = ypred), color = 'red',size = 1.5)+
+  labs(title="Sclass550 with optimal K",
+       caption="Source: sclass dataset")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Figure 3 and Figure 4 shows a plot of RMSE versus K for car trim level 65AMG and a plot of the fitted model at the optimal K value.
+
+```{r, echo=FALSE}
+##### for dataset sclass65AMG####
+N = nrow(sclass65AMG)
+N_train = floor(0.8*N)  # floor round down, celling round up
+N_test = N - N_train
+
+# Train/test split
+# randomly sample a set of data points to include in the training set
+optimal = rep(1,100)
+for (b in 1:100){
+train_ind = sample.int(N, N_train, replace=FALSE)
+
+# Define the training and testing set
+D_train = sclass65AMG[train_ind,]
+D_test = sclass65AMG[-train_ind,]
+D_test = arrange(D_test, mileage)
+
+# Now separate the training and testing sets into features (X) and outcome (y)
+X_train = select(D_train, mileage)
+y_train = select(D_train, price)
+X_test = select(D_test, mileage)
+y_test = select(D_test, price)
+
+
+### R Loop
+n = 231
+a = rep(0,n)
+mse = rep(0,n)
+for (i in 1: n){
+  # KNN 
+  knn = knn.reg(train = X_train, test = X_test, y = y_train, k= (i+2))  # training feature, test feature, target var for training set, what k do you want
+  ypred_knn = knn$pred
+  Out_mse = rmse(y_test, ypred_knn)
+  a[i] = i+2
+  mse[i] = Out_mse
+}
+optimal[b] = a[which(mse == min(mse))]
+}
+optimalK2 = mean(optimal)
+
+### draw the path of the change of mse by increasing k
+msetrend = data.frame(a, mse)
+ggplot(data = msetrend, aes(x=a, y = mse))+
+  geom_path(color = 'red',size = 1)+
+  geom_vline(xintercept= a[which(mse == min(mse))] )+
+  geom_text(aes(x=a[which(mse == min(mse))], label="k optimal", y=55000), colour="red", size =5, hjust = 0, fontface = "italic")+
+  labs(title="Measuring Accuracy for 65AMG: Out-of-sample MSE vs K",
+       caption="Source: sclass dataset",
+       x="K", y = "Out-of-sample MSE")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+#### fitted model of optimal k
+k_optimal = a[which(mse == min(mse))]
+sclass65AMG = arrange(sclass65AMG, mileage)
+X_train = select(sclass65AMG, mileage)
+y_train = select(sclass65AMG, price) 
+knn = knn.reg(train = X_train, test = X_train, y = y_train, k= k_optimal)  # training feature, test feature, target var for training set, what k do you want
+ypred = knn$pred
+p_train = ggplot(data = sclass65AMG) +
+  geom_point(mapping = aes(x= mileage, y = price), color ='lightblue')
+p_train + geom_path(mapping = aes(x = mileage, y = ypred), color = 'red',size = 1.5)+
+  labs(title="Sclass65AMG with optimal K",
+       caption="Source: sclass dataset")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Since the optimal K will be affected by different random subsmaple we choose. On average, optimal K of the second subsample is relatively smaller than that of the first subsample. The difference of the optimal K values is resulted from sample size difference. The second sample contains less sample size. Thus, smallest out-of-sample MSE corresponded to smaller K value.
+
