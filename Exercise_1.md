@@ -103,9 +103,8 @@ Figure 3 and Figure 4 shows a plot of RMSE versus K for car trim level
 
 ![](Exercise%201/unnamed-chunk-16-1.png)![](Exercise%201/unnamed-chunk-16-2.png)
 
-Since the optimal K will be affected by different random subsmaple we
-choose. On average, optimal K of the second subsample is relatively
-smaller than that of the first subsample. The difference of the optimal
+Since the optimal K will be affected by different random subsample we
+choose. I run the whole process by 100 times and get an average optimal K value. On average, optimal K of the second subsample is relatively smaller than that of the first subsample. The difference of the optimal
 K values is resulted from sample size difference. The second sample
 contains less sample size. Thus, smallest out-of-sample MSE corresponded
 to smaller K value.
