@@ -1,0 +1,416 @@
+---
+title: "Exercise_2"
+author: "Zijing He"
+date: "3/14/2019"
+output: md_document
+---
+
+#Question 1: Saratoga House Prices
+
+To build a better model which could outperforms the medium model, I think there may be three improvements I could make. 
+
+I will discuss the reasons for each improvement. Also, each improvement includes a group of add-on variables (new variables or interaction terms). I will add each group on the original medium model separately and check whether it will outperform the medium model or not. 
+
+The first improvement is adding three new variables: landvalues, waterfront and newconstruction. The house price is highly correlated to where the house located. A good place usually corresponded to a higher land values, and waterfront could be an indicator of a good location. New construction, which means it's a brandnew house and nobody stays before, indicates a good function of utilities. It's may a factor which increases house price. The results (V1 for medium model, V2 for medium model with improvement) turns out to be very good, the out-of-sample RMSE is 7000 smaller than the medium model, which means it is around 7000 dollar more accurate than the medium model. These three omitted variables may be a strong driver of house prices.
+
+
+```{r, echo=FALSE,include = FALSE}
+library(mosaic)
+data(SaratogaHouses)
+rmse = function(y, yhat) {
+  sqrt( mean( (y - yhat)^2 ) )
+}
+```
+
+```{r, echo=FALSE}
+rmse_vals= do (500)*{
+  
+  n = nrow(SaratogaHouses)
+  n_train = round(0.8*n)  # round to nearest integer
+  n_test = n - n_train
+  
+  train_cases = sample.int(n, n_train, replace=FALSE)
+  test_cases = setdiff(1:n, train_cases)
+  saratoga_train = SaratogaHouses[train_cases,]
+  saratoga_test = SaratogaHouses[test_cases,]
+  
+  # Fit to the training data
+  lm_medium = lm(price ~ lotSize + age + livingArea + pctCollege + bedrooms + 
+                   fireplaces + bathrooms + rooms + heating + fuel + centralAir, data=SaratogaHouses)
+  lm_me1 = lm(price ~ lotSize + pctCollege + landValue + waterfront + newConstruction + fireplaces +  bathrooms + bedrooms + rooms +livingArea + heating + fuel + centralAir, data=saratoga_train)
+  
+  # Predictions out of sample
+  yhat_test = predict(lm_medium, saratoga_test)
+  yhat_test1 = predict(lm_me1, saratoga_test)
+ 
+  # Root mean-squared prediction error
+  c(rmse(saratoga_test$price, yhat_test),
+    rmse(saratoga_test$price, yhat_test1))
+}
+colMeans(rmse_vals)
+```
+
+The second improvement is adding on interaction between bedrooms and bathrooms. I think a high value house should do well in balancing resource, which means the ratio of bathrooms to bedrooms should not be too small, for instance, a four-bedroom house usually have at least two bathrooms. However, the result (V1 for medium model, V2 for medium model with improvement) turns out that this interaction may not be a strong driver of the house price.
+
+```{r, echo=FALSE}
+data(SaratogaHouses)
+rmse = function(y, yhat) {
+  sqrt( mean( (y - yhat)^2 ) )
+}
+
+rmse_vals= do (500)*{
+  
+  n = nrow(SaratogaHouses)
+  n_train = round(0.8*n)  # round to nearest integer
+  n_test = n - n_train
+  
+  train_cases = sample.int(n, n_train, replace=FALSE)
+  test_cases = setdiff(1:n, train_cases)
+  saratoga_train = SaratogaHouses[train_cases,]
+  saratoga_test = SaratogaHouses[test_cases,]
+  
+  # Fit to the training data
+  lm_medium = lm(price ~ lotSize + age + livingArea + pctCollege + bedrooms + 
+                   fireplaces + bathrooms + rooms + heating + fuel + centralAir, data=SaratogaHouses)
+  lm_me2 = lm(price ~ lotSize + pctCollege + fireplaces +  bathrooms*bedrooms + rooms +livingArea + heating + fuel + centralAir, data=saratoga_train)
+ 
+  # Predictions out of sample
+  yhat_test = predict(lm_medium, saratoga_test)
+  yhat_test2 = predict(lm_me2, saratoga_test)
+ 
+  # Root mean-squared prediction error
+  c(rmse(saratoga_test$price, yhat_test),
+    rmse(saratoga_test$price, yhat_test2))
+}
+colMeans(rmse_vals)
+```
+
+The last improvement is adding on interaction between living area and fuel, interaction between living area and heating, and interaction between living area and central air. Different heating system, different fuel system type and whether it has central air conditioning, will affect the correlation between living area and hour price. For example, it may be the case the heating system A is more efficient for big house, thus, the effect of living area on house price will be different between big house and small house due to different cost generated from heating system. This kind of typical case may also apply to different fuel system,  and whether air conditioning or not. These interactions  (V1 for medium model, V2 for medium model with improvement)  turn out to have some contributions to improvement of the model.
+
+```{r, echo=FALSE}
+data(SaratogaHouses)
+rmse = function(y, yhat) {
+  sqrt( mean( (y - yhat)^2 ) )
+}
+
+rmse_vals= do (500)*{
+  
+  n = nrow(SaratogaHouses)
+  n_train = round(0.8*n)  # round to nearest integer
+  n_test = n - n_train
+  
+  train_cases = sample.int(n, n_train, replace=FALSE)
+  test_cases = setdiff(1:n, train_cases)
+  saratoga_train = SaratogaHouses[train_cases,]
+  saratoga_test = SaratogaHouses[test_cases,]
+  
+  # Fit to the training data
+  lm_medium = lm(price ~ lotSize + age + livingArea + pctCollege + bedrooms + 
+                   fireplaces + bathrooms + rooms + heating + fuel + centralAir, data=SaratogaHouses)
+   lm_me3 = lm(price ~ lotSize + pctCollege + fireplaces + age + bedrooms + bathrooms + rooms +livingArea* heating + livingArea*fuel + livingArea*centralAir, data=saratoga_train)
+  
+  # Predictions out of sample
+  yhat_test = predict(lm_medium, saratoga_test)
+  yhat_test3 = predict(lm_me3, saratoga_test)
+  
+  # Root mean-squared prediction error
+  c(rmse(saratoga_test$price, yhat_test),
+    rmse(saratoga_test$price, yhat_test3))
+}
+colMeans(rmse_vals)
+```
+
+The final model is built by adding the first improvement and the third improvement to the original medium model. The out-of-sample RMSE (V1 for medium model, V2 for medium model with improvements) is 8000 smaller than the medium model, which means my hand-build model is around 8000 dollars more accurate than the mdium model. 
+
+```{r, echo=FALSE,include=FALSE}
+data(SaratogaHouses)
+rmse = function(y, yhat) {
+  sqrt( mean( (y - yhat)^2 ) )
+}
+
+rmse_vals= do (500)*{
+  
+  n = nrow(SaratogaHouses)
+  n_train = round(0.8*n)  # round to nearest integer
+  n_test = n - n_train
+  
+  train_cases = sample.int(n, n_train, replace=FALSE)
+  test_cases = setdiff(1:n, train_cases)
+  saratoga_train = SaratogaHouses[train_cases,]
+  saratoga_test = SaratogaHouses[test_cases,]
+  
+  # Fit to the training data
+  lm_medium = lm(price ~ lotSize + age + livingArea + pctCollege + bedrooms + 
+                   fireplaces + bathrooms + rooms + heating + fuel + centralAir, data=SaratogaHouses)
+  lm_me4 = lm(price ~ lotSize + pctCollege + landValue + waterfront + newConstruction + fireplaces + age + heating + fuel + centralAir + bathrooms + bedrooms + rooms +livingArea* heating + livingArea*fuel + livingArea*centralAir, data=saratoga_train)
+  
+  # Predictions out of sample
+  yhat_test = predict(lm_medium, saratoga_test)
+  yhat_test4 = predict(lm_me4, saratoga_test)
+ 
+  # Root mean-squared prediction error
+  c(rmse(saratoga_test$price, yhat_test),
+    rmse(saratoga_test$price, yhat_test4))
+}
+colMeans(rmse_vals)
+```
+
+In conclusion, when the local tax authority predicted market values for properties, they should consider the area of the house (lot size, living area), also the location of the house (land values, waterfront) , the inside construction features ( bedrooms, bathrooms, rooms, new construction) and the type of heating and fuel system (heating, fuel, air conditioning, fireplaces). The more detail correlation, specific to a certain value, is presented below. 
+
+```{r, echo=FALSE,include=FALSE}
+lm_me4 = lm(price ~ lotSize + pctCollege + landValue + waterfront + newConstruction + fireplaces + age + heating + fuel + centralAir + bathrooms + bedrooms + rooms +livingArea* heating + livingArea*fuel + livingArea*centralAir, data=SaratogaHouses)
+coef(lm_me4)
+```
+
+I then turn this hand-built linear model into a KNN model, the plot shows that the minimum out-of-sample RMSE at k = 17 is bigger than 60000, which is not better than my hand-build linear regression model. 
+
+```{r, echo=FALSE}
+library(FNN)
+SaratogaHouses$heatingnum = as.numeric(SaratogaHouses$heating)
+SaratogaHouses$fuelnum = as.numeric(SaratogaHouses$fuel)
+SaratogaHouses$waterfrontnum = as.numeric(SaratogaHouses$waterfront)
+SaratogaHouses$newConstructionnum = as.numeric(SaratogaHouses$newConstruction)
+SaratogaHouses$centralAirnum = as.numeric(SaratogaHouses$centralAir)
+
+X = select(SaratogaHouses, lotSize, landValue, waterfrontnum, newConstructionnum, fireplaces, age,heatingnum, fuelnum, centralAirnum, bedrooms, bathrooms, rooms, livingArea) 
+y = SaratogaHouses$price
+n = length(y)
+
+# select a training set
+n_train = round(0.8*n)
+n_test = n - n_train
+
+library(foreach)
+library(mosaic)
+k_grid = seq(1, 50, by=2)
+rmse_grid = foreach(k = k_grid,  .combine='c') %do% {
+  out = do(100)*{
+    train_ind = sample.int(n, n_train)
+    X_train = X[train_ind,]
+    X_test = X[-train_ind,]
+    y_train = y[train_ind]
+    y_test = y[-train_ind]
+    
+    # scale the training set features
+    scale_factors = apply(X_train, 2, sd)
+    X_train_sc = scale(X_train, scale=scale_factors)
+    
+    # scale the test set features using the same scale factors
+    X_test_sc = scale(X_test, scale=scale_factors)
+    
+    # Fit two KNN models (notice the odd values of K)
+    knn = knn.reg(train=X_train_sc, test= X_test_sc, y=y_train, k=k)
+    ypred_knn=knn$pred
+    rmse(y_test, ypred_knn)
+  } 
+  mean(out$result)
+}
+
+plot(k_grid, rmse_grid)
+```
+
+#Question 2: A Hospital Audit
+
+For the first question, I am trying to logit regression model to figure out the recall ratio for different radiologists. Using recall as dependent variable, and added all else risk factors except cancer into the model. 
+
+```{r,  echo=FALSE,include=FALSE}
+##############first question about conservation#############
+library(RCurl)
+x<-getURL("https://raw.githubusercontent.com/ZijingHe/hello-world/master/data/brca.csv")
+brca <- read.csv(text=x)
+```
+
+```{r,  echo=FALSE}
+logit_radio = glm(recall~ .-cancer, data=brca,family = "binomial")
+coef(logit_radio) %>% round(3)
+```
+
+By using logit regression, I can interpret the parameter as partial effects by holding all else fixed. Compare with radiologist13, which is the baseline, the odds of recall for radiologist34 is e^(-0.522) times of radiologist13, holding all else fixed. The odds of recall for radiologist66 is e^(0.355) times of radiologist13, holding all else fixed. The odds of recall for radiologist89 is e^(0.464) times of radiologist13, holding all else fixed. The odds of recall for radiologist95 is e^(-0.052) times of radiologist13, holding all else fixed. Thus, radiologist89 has the highest probability of recall, which means he/she is more conservative compare with others, holding all else fixed.
+
+For the second quesiton, as we know, the more variables we add into a model, the higher the R-square ( the lower the in-sample square error). Comparing model A with only recall as independent variable, and model B with recall and  all other risk variables. The coefficients from model B shows that the radiologist were appropriately accounting for a patient’s risk factor of breast cancer in interpreting the mammogram and deciding whether to recall the patient for further screening. Also, the in-sample RMSE is relatively smaller for B compare with A. 
+
+Coefficients for model A
+```{r,  echo=FALSE}
+rmse = function(y, yhat) {
+  sqrt( mean( (y - yhat)^2 ) )
+}
+
+### in-sample comparison between model A and model B
+logit_cancerA = glm(cancer~recall, data=brca,family = "binomial")
+coef(logit_cancerA)
+phat_cancerA = predict(logit_cancerA, brca, type='response')
+yhat_cancerA = ifelse(phat_cancerA > 0.5, 1, 0)
+```
+
+Coefficients for model B
+```{r,  echo=FALSE}
+logit_cancerB = glm(cancer~., data=brca,family = "binomial")
+coef(logit_cancerB)
+phat_cancerB = predict(logit_cancerB, brca, type='response')
+yhat_cancerB = ifelse(phat_cancerB > 0.5, 1, 0)
+```
+
+In-sample RMSE of model A
+```{r,  echo=FALSE}
+rmseA = rmse(brca$cancer, yhat_cancerA)
+rmseA
+```
+
+In-sample RMSE of model B
+```{r,  echo=FALSE}
+rmseB = rmse(brca$cancer, yhat_cancerB)
+rmseB
+```
+
+However, when doing the out-sample prediction, model B does not show any advantage than model A, instead, model B has higher out-of-sample RMSE. Thus, it’s better to only consider recall when predicting cancer outcome for new patients. 
+
+```{r,  echo=FALSE,warning = FALSE}
+rmse_vals= do (100)*{
+  
+  n = nrow(brca)
+  n_train = round(0.8*n)  # round to nearest integer
+  n_test = n - n_train
+  
+  train_cases = sample.int(n, n_train, replace=FALSE)
+  test_cases = setdiff(1:n, train_cases)
+  brca_train = brca[train_cases,]
+  brca_test = brca[test_cases,]
+
+  logit_cancerA_out = glm(cancer~recall, data=brca_train,family = "binomial")
+  phat_cancerA_out = predict(logit_cancerA_out, brca_test, type='response')
+  yhat_cancerA_out = ifelse(phat_cancerA_out > 0.5, 1, 0)
+  
+  logit_cancerB_out = glm(cancer~., data=brca_train,family = "binomial")
+  phat_cancerB_out = predict(logit_cancerB_out, brca_test, type='response')
+  yhat_cancerB_out = ifelse(phat_cancerB_out > 0.5, 1, 0)
+ 
+  c(rmse(brca_test$cancer, yhat_cancerA_out),
+    rmse(brca_test$cancer, yhat_cancerB_out))
+}
+```
+Out-of-sample RMSE (V1 for model A, V2 for model B)
+```{r,  echo=FALSE,warning = FALSE}
+colMeans(rmse_vals)
+```
+
+
+
+#Question 3: Predicting When Artical Go Viral 
+After trying many different models, the best (with the smallest RMSE) and interpretable model (easy to interpret the meaning of parameters) for shares is using all artical-level features. The first model is doing linear regression first and then threshold to get a confusion table, corresponded error rate, true positive rate and false positive rate. The result turns out to be a little bit wierd, with around 0.47 error rate, high true positve rate but also high false positive rate.
+```{r,  echo=FALSE, warning =FALSE}
+library(RCurl)
+x<-getURL("https://raw.githubusercontent.com/ZijingHe/hello-world/master/data/online_news.csv")
+online_news <- read.csv(text=x)
+
+library(mosaic)
+online1 <-online_news[c(2:38)]
+  rmse_vals= do (50)*{
+
+    n = nrow(online1)
+    
+    n_train = round(0.8*n)  # round to nearest integer
+    n_test = n - n_train
+
+    train_cases = sample.int(n, n_train, replace=FALSE)
+    test_cases = setdiff(1:n, train_cases)
+    news_train = online1[train_cases,]
+    news_test = online1[test_cases,]
+
+    # Fit to the training data
+    lm_1 = lm(shares ~ (.) , data=news_train)
+
+    # Predictions out of sample
+    yhat_test1 = predict(lm_1, news_test)
+    
+  #confusion matrix
+    shareshat_test = ifelse(yhat_test1 > 1400, 1, 0)
+    share_class = ifelse(news_test$shares > 1400,1,0)
+    confusion = table(viral = share_class, viralhat = shareshat_test)
+    list <- list(confusion)
+  }
+  confusion_out = Reduce("+", list) / length(list)
+  
+  error_rate = (confusion_out[2,1]+confusion_out[1,2])/n_test
+  TPR = (confusion_out[2,2])/(confusion_out[2,1]+confusion_out[2,2])
+  FPR = (confusion_out[1,2])/(confusion_out[1,1]+confusion_out[1,2])
+  
+```
+Confusion table for the first model
+```{r,  echo=FALSE}
+confusion_out
+```
+Error rate for the first model
+```{r,  echo=FALSE}
+error_rate
+```
+True Positve Rate for the first model
+```{r,  echo=FALSE}
+TPR
+```
+False Positive Rate for the first model
+```{r,  echo=FALSE}
+FPR
+```
+
+The second model is threshold first, and doing logit regression to get prediction share. The result turns out to be better than the first model, with smaller error rate, true positive rate and false positive rate.
+
+```{r,  echo=FALSE, warning = FALSE}
+online_news$viral = ifelse(online_news$shares >1400,1,0)
+online2 <-online_news[c(2:37,39)]    
+
+  rmse_vals= do (50)*{
+    
+    n = nrow(online2)
+    n_train = round(0.8*n)  # round to nearest integer
+    n_test = n - n_train
+    
+    train_cases = sample.int(n, n_train, replace=FALSE)
+    test_cases = setdiff(1:n, train_cases)
+    news_train = online2[train_cases,]
+    news_test = online2[test_cases,]
+    
+    # Fit to the training data by logit model 
+    logit_1 = glm(viral ~ (.) , data=news_train, family ="binomial")
+    
+    # Predictions out of sample
+    phat = predict(logit_1, news_test, type='response')
+    yhat = ifelse(phat > 0.5, 1, 0)
+    
+    #confusion matrix
+    confusion = table(viral = news_test$viral, viralhat = yhat)
+    list <- list(confusion)
+  }
+  confusion_out = Reduce("+", list) / length(list)
+  
+  error_rate = (confusion_out[2,1]+confusion_out[1,2])/n_test
+  TPR = (confusion_out[2,2])/(confusion_out[2,1]+confusion_out[2,2])
+  FPR = (confusion_out[1,2])/(confusion_out[1,1]+confusion_out[1,2])
+  
+```
+
+Confusion table for the second model
+```{r,  echo=FALSE}
+confusion_out
+```
+Error rate for the second model
+```{r,  echo=FALSE}
+error_rate
+```
+True Positve Rate for the second model
+```{r,  echo=FALSE}
+TPR
+```
+False Positive Rate for the second model
+```{r,  echo=FALSE}
+FPR
+```
+
+The reason why the results of these two models are quite different is that, we can easily find the distrubution of shares has a very long right tail by summarying variable shares.
+```{r,  echo=FALSE}
+summary(online_news$shares)
+```
+
+With high value outliner, it will distort (make it steeper) the linear regression function. With first threshold shares, the outliners will equal to one, which will be the same as other observations with shares larger than 1400. Thus, the influence from outliner will be moved out and make the model more accurate for prediction.
+
+
+
