@@ -66,10 +66,10 @@ air conditioning, fireplaces). The more detail correlation, specific to
 a certain value, is presented below.
 
 I then turn this hand-built linear model into a KNN model, the plot
-shows that the minimum out-of-sample RMSE at k = 17 is bigger than
+shows that the minimum out-of-sample RMSE is bigger than
 60000, which is not better than my hand-build linear regression model.
 
-![](Exercise%202/unnamed-chunk-7-1.png))
+![](Exercise%202/unnamed-chunk-7-1.png)
 
 Question 2: A Hospital Audit
 ============================
