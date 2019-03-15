@@ -162,7 +162,7 @@ lm_me4 = lm(price ~ lotSize + pctCollege + landValue + waterfront + newConstruct
 coef(lm_me4)
 ```
 
-I then turn this hand-built linear model into a KNN model, the plot shows that the minimum out-of-sample RMSE at k = 17 is bigger than 60000, which is not better than my hand-build linear regression model. 
+I then turn this hand-built linear model into a KNN model, the plot shows that the minimum out-of-sample RMSE is bigger than 60000, which is not better than my hand-build linear regression model. 
 
 ```{r, echo=FALSE}
 library(FNN)
