@@ -54,6 +54,7 @@ number of association does not go up. Thus, 0.6 confidence is a good
 choice.
 
 ![](Exercise%204/unnamed-chunk-9-1.png) 
+
 There are six associations more likely to happened: pip fruit and tropical
 fruit, citrus fruit and tropical fruit, root vegetables and other
 vegetables, butter and whole milk, tropical fruit and root vegetables,
