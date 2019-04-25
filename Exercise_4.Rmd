@@ -72,7 +72,7 @@ qplot(scores[,1], scores[,2], color=factor(wine$quality),xlab='Component 1', yla
 Figure 3 is very noisy, clustering method does not work to distinguish wine quality.
 
 ## Question 2 Market Segementation
-First, I delete the random user identity, chatter, uncategorized, spam and adult colunms, to reduce the noise as much as possible.
+First, I delete the random user identity, chatter, uncategorized, spam and adult colunms, to reduce the noise as much as possible. Then, I use PCA to reduce dimensions and cluster to seperate audiences.
 
 ```{r, echo=FALSE, warning = FALSE}
 x<-getURL("https://raw.githubusercontent.com/ZijingHe/hello-world/master/data/social_marketing.csv")
