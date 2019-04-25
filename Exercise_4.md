@@ -1,7 +1,7 @@
 Question 1 Clustering and PCA
 -----------------------------
 
-![](Exercise_4_files/figure-markdown_strict/unnamed-chunk-2-1.png)![](Exercise_4_files/figure-markdown_strict/unnamed-chunk-2-2.png)
+![](Exercise%204/unnamed-chunk-2-1.png)![](Exercise%204/unnamed-chunk-2-2.png) 
 
 Figure 1 and Figure 2 are not very different; however, Figure 2
 (clustering) method is more capable of distinguishing the red wine from
@@ -14,7 +14,7 @@ Although, there are 10 scales in wine quality, only 3-9 appeared in this
 dataset. Then, I use k-means++ to divide these observations into 7
 clusters.
 
-![](Exercise_4_files/figure-markdown_strict/unnamed-chunk-4-1.png)
+![](Exercise%204/unnamed-chunk-4-1.png)
 
 Figure 3 is very noisy, clustering method does not work to distinguish
 wine quality.
@@ -25,7 +25,7 @@ Question 2 Market Segementation
 First, I delete the random user identity, chatter, uncategorized, spam
 and adult colunms, to reduce the noise as much as possible.
 
-![](Exercise_4_files/figure-markdown_strict/unnamed-chunk-5-1.png)
+![](Exercise%204/unnamed-chunk-5-1.png) 
 
 The audiences of NutrientH20 are roughly clustered to two parts. The
 first part is audiences who are interested in sports, religion, food,
@@ -40,7 +40,7 @@ Question 3 Association Rules for Grocery Purchases
 First, I plot a barplot of top 20 most frequently purchased items. This
 graph gives me a general picture of transactions.
 
-![](Exercise_4_files/figure-markdown_strict/unnamed-chunk-7-1.png)
+![](Exercise%204/unnamed-chunk-7-1.png)
 
 I choose support rate no less than 0.1, which means the probability of
 transactions that contain all these items should not be lower than 10
@@ -53,7 +53,7 @@ association could get. When confidence rate is lower than 0.6, the
 number of association does not go up. Thus, 0.6 confidence is a good
 choice.
 
-![](Exercise_4_files/figure-markdown_strict/unnamed-chunk-9-1.png) There
+![](Exercise%204/unnamed-chunk-9-1.png) There
 are six associations more likely to happened: pip fruit and tropical
 fruit, citrus fruit and tropical fruit, root vegetables and other
 vegetables, butter and whole milk, tropical fruit and root vegetables,
@@ -93,3 +93,4 @@ the label size, the more frequent this item appeared in a transaction,
 which is another representation of the barplot. The dark the color of
 the edge, the higher the lift of the association, which corresponded to
 what I found.
+![](Exercise%204/network.png)
