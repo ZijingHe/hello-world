@@ -53,8 +53,8 @@ association could get. When confidence rate is lower than 0.6, the
 number of association does not go up. Thus, 0.6 confidence is a good
 choice.
 
-![](Exercise%204/unnamed-chunk-9-1.png) There
-are six associations more likely to happened: pip fruit and tropical
+![](Exercise%204/unnamed-chunk-9-1.png) 
+There are six associations more likely to happened: pip fruit and tropical
 fruit, citrus fruit and tropical fruit, root vegetables and other
 vegetables, butter and whole milk, tropical fruit and root vegetables,
 curd and whole milk. Compare to randomly choose a buyer who buy any
