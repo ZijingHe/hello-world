@@ -23,7 +23,8 @@ Question 2 Market Segementation
 -------------------------------
 
 First, I delete the random user identity, chatter, uncategorized, spam
-and adult colunms, to reduce the noise as much as possible.
+and adult colunms, to reduce the noise as much as possible. Then, I use 
+PCA to reduce dimensions and cluster to seperate audiences.
 
 ![](Exercise%204/unnamed-chunk-5-1.png) 
 
