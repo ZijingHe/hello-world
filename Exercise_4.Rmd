@@ -1,0 +1,163 @@
+---
+title: "Exercise_4"
+author: "Zijing He"
+date: "4/24/2019"
+output: md_document
+---
+
+```{r, echo = FALSE, include=FALSE}
+library(tidyverse)
+library(LICORS)
+library(ggfortify)
+library(ggplot2)
+library(arules)  
+library(arulesViz)
+library(reshape)
+library(RCurl)
+```
+
+## Question 1 Clustering and PCA
+```{r, echo=FALSE, warning = FALSE}
+x<-getURL("https://raw.githubusercontent.com/ZijingHe/hello-world/master/data/wine.csv")
+wine <- read.csv(text=x)
+##### wine color ###########
+####PCA####
+X = as.matrix(wine[1:11])
+y = wine[,13]
+
+#PCA 
+pc_color = prcomp(X, scale=TRUE)
+#summary(pc_color)
+K = 2   # number of summary variables
+scores = pc_color$x[,1:K]
+
+# visualization comparison 
+qplot(scores[,1], scores[,2], color=wine$color, xlab='Component 1', ylab='Component 2',alpha =0.6)+
+  labs(title="Figure 1: Color PCA Dimensionality Reduction",color = "color of wine")+
+  scale_alpha(guide = 'none')
+
+#####cluster#####
+X = scale(X, center=TRUE, scale=TRUE)
+
+# Run k-means++ with 2 clusters and 25 starts
+clust = kmeanspp(X, 2, nstart=25)  #25 times random restarts 
+qplot(scores[,1], scores[,2], color=factor(clust$cluster),xlab='Component 1', ylab='Component 2', alpha =0.6)+
+  labs(title="Figure 2: Color Clustering Dimensionality Reduction",color = "cluster")+
+  scale_alpha(guide = 'none')
+```
+
+Figure 1 and Figure 2 are not very different; however, Figure 2 (clustering) method is more capable of distinguishing the red wine from the white wine, since there is some overlap in Figure 1.
+
+```{r, echo=FALSE, warning = FALSE}
+####### wine quality #########
+#####cluster#####
+X = scale(X, center=TRUE, scale=TRUE)
+
+# Run k-means++ with 7 clusters and 25 starts
+summary(wine$quality)
+
+
+```
+
+Although, there are 10 scales in wine quality, only 3-9 appeared in this dataset. Then, I use k-means++ to divide these observations into 7 clusters.
+
+```{r, echo=FALSE, warning = FALSE}
+clust2 = kmeanspp(X, 7, nstart=25)  #25 times random restarts 
+clust2$cluster<- clust2$cluster+2
+qplot(scores[,1], scores[,2], color=factor(wine$quality),xlab='Component 1', ylab='Component 2', alpha =0.6)+
+  labs(title="Figure 3: Quality Clustering Dimensionality Reduction",color = "cluster")+
+  scale_alpha(guide = 'none')
+```
+
+Figure 3 is very noisy, clustering method does not work to distinguish wine quality.
+
+## Question 2 Market Segementation
+First, I delete the random user identity, chatter, uncategorized, spam and adult colunms, to reduce the noise as much as possible.
+
+```{r, echo=FALSE, warning = FALSE}
+x<-getURL("https://raw.githubusercontent.com/ZijingHe/hello-world/master/data/social_marketing.csv")
+social_marketing <- read.csv(text=x)
+# First normalize phrase counts to phrase frequencies.
+# (often a sensible first step for count data, before z-scoring)
+countdata <- social_marketing[c(3:5,7:35)]
+Z = countdata
+#####PCA#####
+pc2 = prcomp(Z, scale=TRUE)
+
+#####cluster#####
+clust2 = kmeanspp(Z, k=2, nstart=25)
+Z$cluster<-as.factor(clust2$cluster)
+
+####combine cluster and PCA#####
+autoplot(pc2, data =Z, colour = 'cluster', loadings = TRUE,loadings.colour = 'darkorange', loadings.label = TRUE, loadings.label.size = 3.5, loadings.label.colour = 'black')
+```
+
+The audiences of NutrientH20 are roughly clustered to two parts. The first part is audiences who are interested in sports, religion, food, family, parenting and school. Another part is the rest interests. The best strategy is focusing the first cluster, because the first cluster account for heavier weights, and with less interests, which means easier to target these customers. 
+
+##Question 3 Association Rules for Grocery Purchases
+
+First, I plot a barplot of top 20 most frequently purchased items. This graph gives me a general picture of transactions.
+
+```{r, echo=FALSE, include = FALSE, warning = FALSE}
+groceries<-read.delim("https://raw.githubusercontent.com/ZijingHe/hello-world/master/data/groceries.txt", sep=",", header=FALSE)
+#groceries <- read.table(text=x)
+#Reshape the dataframe
+groceries$buyers <- seq.int(nrow(groceries))
+grocery_raw <-melt(groceries, id =c("buyers"))
+grocery_raw<- grocery_raw[,-2]
+grocery_raw <- grocery_raw[-which(grocery_raw$value == ""), ]
+colnames(grocery_raw)[2] <- "item"
+grocery_raw <- as.data.frame(grocery_raw)
+
+#summary statistics 
+str(grocery_raw)
+```
+
+```{r, echo=FALSE, warning = FALSE}
+# Barplot of top 20 items
+grocery_raw$item %>%
+  summary(maxsum=Inf) %>%
+  sort(decreasing=TRUE) %>%
+  head(20) %>%
+  barplot(las=2, cex.names=0.6)
+```
+
+I choose support rate no less than 0.1, which means the probability of transactions that contain all these items should not be lower than 10 percent. In total, there are around 15000 transactions, which means I focus the combination which happened more than 1500 times. This should be appropriate because transcations which happened frequently are more meaningful to research. In terms of the confidence rate, it should be larger than support rate. The lower the confidence rate, the more association could get. When confidence rate is lower than 0.6, the number of association does not go up. Thus, 0.6 confidence is a good choice.
+
+```{r, echo=FALSE, include = FALSE, warning = FALSE}
+# Covert into list
+grocery_raw$buyers = factor(grocery_raw$buyers)
+grocery = split(x=grocery_raw$item, f=grocery_raw$buyer) 
+# Remove duplicates ("de-dupe")
+grocery = lapply(grocery, unique)
+
+## Cast this variable as a special arules "transactions" class.
+grocerytrans = as(grocery, "transactions")
+#summary(grocerytrans)
+
+# Now run the 'apriori' algorithm
+# Look at rules with support > .01 & confidence >.1 & length (# artists) <= 5
+groceryrules = apriori(grocerytrans, 
+                     parameter=list(support=.01, confidence=.06))
+```
+
+```{r, echo=FALSE, warning = FALSE}
+plot(groceryrules, jitter = 0)
+```
+There are six associations more likely to happened: pip fruit and tropical fruit, citrus fruit and tropical fruit, root vegetables and other vegetables, butter and whole milk, tropical fruit and root vegetables, curd and whole milk. Compare to randomly choose a buyer who buy any association, buyers buy one item out of any association are at least twice more likely to buy another item in corresponded association. 
+
+```{r, echo=FALSE, warning = FALSE}
+# There are six associations with high lift rate. 
+top.lift <- sort(groceryrules, decreasing = TRUE, na.last = NA, by = "lift")
+inspect(head(top.lift, 12))
+```
+
+We can visualize the association rules through network graph. The larger the label size, the more frequent this item appeared in a transaction, which is another representation of the barplot. The dark the color of the edge, the higher the lift of the association, which corresponded to what I found.
+
+```{r, echo=FALSE, include = FALSE, warning = FALSE}
+# visualization
+sub1 = subset(groceryrules, subset=confidence > 0.06 & support > 0.01)
+summary(sub1)
+saveAsGraph(sub1, file = "groceryrules.graphml")
+```
+
