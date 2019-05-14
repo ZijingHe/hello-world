@@ -171,7 +171,9 @@ Table 2.2 Confusion tree and error rate for multiple regression method
 
     ## [1] 0.6994536
 
-**Continuous Revenue** Table 3 represents the average out-of-sample root
+**Continuous Revenue** 
+
+Table 3 represents the average out-of-sample root
 mean square error of different methods. It shows that random forest is
 around 2 million dollars more accurate than linear multiple regression
 model.
@@ -196,7 +198,7 @@ variables, the partial effect increase dramatically at the beginning and
 then became stable in general, which means those variables have positive
 effect with diminishing marginal effect.
 
-![](Final_project_files/figure-markdown_strict/unnamed-chunk-8-1.png)
+![](Final_project/unnamed-chunk-8-1.png)
 
 ### Robustness
 
