@@ -263,7 +263,7 @@ means that variance of predicted error increase with the increase of
 revenue. From Figure 2, we can see that. the distribution of error terms
 become more spread when the revenues increase.
 
-![](Final_project_files/figure-markdown_strict/unnamed-chunk-11-1.png)
+![](Final_project/unnamed-chunk-11-1.png)
 
 Conclusion
 ----------
@@ -278,9 +278,9 @@ accompanied with higher risk.
 Appendix
 --------
 
-![](Final_project_files/figure-markdown_strict/unnamed-chunk-13-1.png)
+![](Final_project/unnamed-chunk-13-1.png)
 
-![](Final_project_files/figure-markdown_strict/unnamed-chunk-15-1.png)
+![](Final_project/unnamed-chunk-15-1.png)
 
 **Appendix 3.1: reduce dimension by PCA**
 
